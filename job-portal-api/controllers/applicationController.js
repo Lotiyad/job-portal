@@ -46,7 +46,7 @@ exports.applyJob = async (req, res) => {
       coverLetter,
       resume: resumeFile ? resumeFile.path : null, // save resume path
     });
-
+    await Job.findByIdAndUpdate(jobId, { $push: { applications: application._id } });
     res
       .status(201)
       .json({ message: "Application submitted successfully", application });
@@ -61,7 +61,7 @@ exports.applyJob = async (req, res) => {
 exports.myApplications = async (req, res) => {
   try {
     const applications = await Application.find({ applicant: req.user._id })
-      .populate("job", "title");
+      .populate("job", "title company description location");
 
     // Add resume URL if exists
     const applicationsWithResumeUrl = applications.map(app => ({

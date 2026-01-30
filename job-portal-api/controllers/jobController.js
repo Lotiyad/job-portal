@@ -4,7 +4,7 @@ const Job = require("../models/jobModel");
 exports.createJob = async (req, res) => {
   try {
     const { title, description, company, location, salary } = req.body;
-
+    
     if (!title || !description || !company || !location) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
@@ -15,7 +15,8 @@ exports.createJob = async (req, res) => {
       company,
       location,
       salary,
-      createdBy: req.user._id
+      createdBy: req.user._id,
+      employer: req.user.id,
     });
 
     res.status(201).json({ message: "Job created successfully", job });
@@ -24,13 +25,36 @@ exports.createJob = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// GET employer jobs
+exports.getEmployerJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({ employer: req.user.id })
+      .populate({
+        path: "applications",
+        populate: {
+          path: "applicant",
+          select: "name email",
+        },
+      });
 
-// @desc Get all jobs (Public)
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch employer jobs" });
+  }
+};
+
 exports.getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find().populate("createdBy", "name email role");
-    res.status(200).json(jobs);
+    const jobs = await Job.find()
+      .populate("createdBy", "name email role")
+      .populate({
+        path: "applications",
+        populate: { path: "applicant", select: "name email" } // note applicant
+      });
+      
+   res.json(jobs);
   } catch (err) {
+    console.error("Error fetching jobs:", err);
     res.status(500).json({ message: "Server error" });
   }
 };

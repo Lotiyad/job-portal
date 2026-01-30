@@ -39,9 +39,14 @@ exports.getAllUsers = async (req, res) => {
 // Admin: view all jobs
 exports.getAllJobs = async (req, res) => {
   try {
-    const jobs = await Job.find()
-      .populate("createdBy", "name email role") // show who posted the job
-      .select("-__v");
+    let jobs = await Job.find()
+      .populate("createdBy", "name email role")
+      .lean(); // convert to plain JS object so we can add fields
+
+    // Add applicant count for each job
+    for (let job of jobs) {
+      job.applicantCount = await Application.countDocuments({ job: job._id });
+    }
 
     res.json({ jobs });
   } catch (err) {
@@ -49,6 +54,7 @@ exports.getAllJobs = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 // ------------------------
@@ -62,8 +68,10 @@ exports.getApplicantsForJob = async (req, res) => {
       .populate("applicant", "name email role")
       .populate("job", "title");
 
-    if (!applications.length)
-      return res.status(404).json({ message: "No applications found for this job" });
+    if (!applications.length) {
+  return res.json({ applications: [] });   // return empty list, NOT an error
+}
+
 
     const applicationsWithResumeUrl = applications.map(app => ({
       _id: app._id,
