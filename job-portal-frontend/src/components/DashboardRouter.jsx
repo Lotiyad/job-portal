@@ -1,32 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import JobseekerDashboard from "./dashboards/JobseekerDashboard";
-import EmployerDashboard from "./dashboards/EmployerDashboard";
-import AdminDashboard from "./dashboards/AdminDashboard";
+import { useAuth } from "../context/AuthContext";
 
 export default function DashboardRouter() {
-  const [user, setUser] = useState(null);
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser) {
-      navigate("/login");
-    } else {
-      setUser(storedUser);
+    if (!loading) {
+      if (!user) {
+        navigate("/login");
+      } else {
+        if (user.role === "jobseeker") navigate("/dashboard/jobseeker");
+        else if (user.role === "employer") navigate("/dashboard/employer");
+        else if (user.role === "admin") navigate("/dashboard/admin");
+        else navigate("/");
+      }
     }
-  }, [navigate]);
+  }, [user, loading, navigate]);
 
-  if (!user) return <div>Loading...</div>;
-
-  switch (user.role) {
-    case "jobseeker":
-      return <JobseekerDashboard user={user} />;
-    case "employer":
-      return <EmployerDashboard user={user} />;
-    case "admin":
-      return <AdminDashboard user={user} />;
-    default:
-      return <div>Invalid user role</div>;
-  }
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+    </div>
+  );
 }

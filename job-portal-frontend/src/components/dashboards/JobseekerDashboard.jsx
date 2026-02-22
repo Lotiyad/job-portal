@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import JobCard from "../JobCard";
+import { useAuth } from "../../context/AuthContext";
 
-export default function JobSeekerDashboard({ user }) {
+export default function JobSeekerDashboard() {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
-  const [selectedJob, setSelectedJob] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [coverLetter, setCoverLetter] = useState("");
   const [applications, setApplications] = useState([]);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   // Fetch available jobs
   useEffect(() => {
@@ -17,176 +17,143 @@ export default function JobSeekerDashboard({ user }) {
         setJobs(res.data);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchJobs();
   }, []);
 
-  // Fetch the jobseeker's applications (API returns { applications: [...] })
+  // Fetch the jobseeker's applications
   useEffect(() => {
     const fetchApplications = async () => {
       try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        
         const res = await axios.get("http://localhost:5000/api/applications/my-applications", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setApplications(res.data?.applications ?? []);
       } catch (err) {
         console.error(err);
       }
     };
-    fetchApplications();
-  }, []);
-
-  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
-
-  const handleApply = async (e) => {
-    e.preventDefault();
-    if (!selectedJob || !selectedFile || !coverLetter) {
-      setMessage("⚠️ Please select a job, upload your resume, and write a cover letter.");
-      return;
+    if (user) {
+        fetchApplications();
     }
-
-    const formData = new FormData();
-    formData.append("jobId", selectedJob._id);
-    formData.append("resume", selectedFile);
-    formData.append("coverLetter", coverLetter);
-
-    try {
-      await axios.post("http://localhost:5000/api/applications/apply", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      setMessage("✅ Application submitted successfully!");
-      setCoverLetter("");
-      setSelectedFile(null);
-      setSelectedJob(null);
-
-      // Refresh applications list
-      const res = await axios.get("http://localhost:5000/api/applications/my-applications", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setApplications(res.data?.applications ?? []);
-    } catch (err) {
-      console.error(err);
-      setMessage("❌ Error submitting application. Try again.");
-    }
-  };
+  }, [user]);
 
   return (
-    <div className="container py-4">
-      <h2 className="mb-4 text-center text-primary">Welcome, {user.name}</h2>
-      <h4 className="text-secondary mb-3 text-center">Available Jobs</h4>
-
-      <div className="row">
-        {jobs.length > 0 ? (
-          jobs.map((job) => (
-            <div key={job._id} className="col-md-4 mb-4">
-              <div
-                className={`card shadow-sm ${selectedJob?._id === job._id ? "border-primary" : ""}`}
-                style={{ cursor: "pointer" }}
-                onClick={() => setSelectedJob(job)}
-              >
-                <div className="card-body">
-                  <h5 className="card-title text-dark">{job.title}</h5>
-                  <h6 className="card-subtitle mb-2 text-muted">{job.company}</h6>
-                  <p className="card-text small text-secondary">{job.description?.substring(0, 100)}...</p>
-                  <button
-                    className="btn btn-outline-primary btn-sm"
-                    onClick={() => setSelectedJob(job)}
-                  >
-                    {selectedJob?._id === job._id ? "Selected" : "Apply Now"}
-                  </button>
-                </div>
-              </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Welcome Section */}
+        <div className="bg-white rounded-lg shadow-sm p-8 mb-8 border border-gray-100">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-3xl font-extrabold text-gray-900">
+                Welcome back, <span className="text-blue-600">{user?.name || "Job Seeker"}</span>
+              </h2>
+              <p className="mt-2 text-lg text-gray-500">
+                Find your next career move or check your application status.
+              </p>
             </div>
-          ))
-        ) : (
-          <p className="text-center text-muted">No jobs available at the moment.</p>
-        )}
-      </div>
-
-      {selectedJob && (
-        <div className="card mt-4 shadow-sm">
-          <div className="card-body">
-            <h5 className="text-primary">{selectedJob.title}</h5>
-            <p className="text-muted">{selectedJob.company}</p>
-            <p>{selectedJob.description}</p>
-
-            <form onSubmit={handleApply}>
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Cover Letter</label>
-                <textarea
-                  className="form-control"
-                  rows="4"
-                  value={coverLetter}
-                  onChange={(e) => setCoverLetter(e.target.value)}
-                  placeholder="Write your cover letter here..."
-                ></textarea>
-              </div>
-
-              <div className="mb-3">
-                <label className="form-label fw-semibold">Upload Resume (PDF)</label>
-                <input type="file" className="form-control" onChange={handleFileChange} />
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary w-100 py-2"
-                style={{ fontWeight: "bold", fontSize: "1.1rem" }}
-              >
-                🚀 Apply for this Job
-              </button>
-            </form>
+            <div className="mt-4 md:mt-0">
+               {/* Could add a 'Update Profile' button here later */}
+            </div>
           </div>
         </div>
-      )}
 
-      <div className="mt-5">
-        <h4 className="text-secondary mb-3">My Applications</h4>
-        <p className="text-muted small mb-3">Jobs you applied to and their current status.</p>
-        {applications.length > 0 ? (
-          <div className="list-group">
-            {applications.map((app) => (
-              <div key={app._id} className="list-group-item d-flex justify-content-between align-items-start flex-wrap gap-2">
-                <div className="flex-grow-1">
-                  <strong>{app.job?.title ?? "Job"}</strong>
-                  {app.job?.company && (
-                    <span className="text-muted"> at {app.job.company}</span>
-                  )}
-                  {app.job?.description && (
-                    <p className="mb-0 small text-muted mt-1">{app.job.description.substring(0, 100)}...</p>
-                  )}
-                  {app.coverLetter && (
-                    <p className="mb-0 small mt-1"><em>Cover letter:</em> {app.coverLetter.substring(0, 80)}...</p>
-                  )}
-                </div>
-                <span
-                  className={`badge text-nowrap ${
-                    app.status === "accepted"
-                      ? "bg-success"
-                      : app.status === "rejected"
-                      ? "bg-danger"
-                      : app.status === "reviewed"
-                      ? "bg-info"
-                      : "bg-warning"
-                  }`}
-                >
-                  {app.status?.toUpperCase() ?? "APPLIED"}
-                </span>
-              </div>
-            ))}
+        {/* Available Jobs Section */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold text-gray-900">
+              Latest Opportunities
+            </h3>
+            {/* Could add a 'View All' link here */}
           </div>
-        ) : (
-          <p className="text-muted">No applications yet. Select a job above and apply to see your applications and status here.</p>
-        )}
-      </div>
+          
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white h-64 rounded-xl shadow-sm animate-pulse"></div>
+              ))}
+            </div>
+          ) : jobs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {jobs.map((job) => (
+                <JobCard key={job._id} job={job} />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+              <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No jobs found</h3>
+              <p className="mt-1 text-sm text-gray-500">Check back later for new opportunities.</p>
+            </div>
+          )}
+        </div>
 
-      {message && (
-        <div className="mt-3 alert alert-info text-center fw-semibold">{message}</div>
-      )}
+        {/* My Applications Section */}
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-6">
+            Application History
+          </h3>
+          
+          <div className="bg-white shadow-sm rounded-lg overflow-hidden border border-gray-100">
+            {applications.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job Title</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Applied</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {applications.map((app) => (
+                      <tr key={app._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{app.job?.title ?? "Unknown Job"}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-500">{app.job?.company ?? "Unknown Company"}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {/* Assuming createdAt exists, otherwise fallback */}
+                          {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "Recent"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            ${app.status === 'accepted' ? 'bg-green-100 text-green-800' : 
+                              app.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                              app.status === 'reviewed' ? 'bg-purple-100 text-purple-800' : 
+                              'bg-yellow-100 text-yellow-800'}`}>
+                            {app.status?.toUpperCase() ?? "APPLIED"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No applications yet</h3>
+                <p className="mt-1 text-sm text-gray-500">Start applying to jobs to see your history here.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
