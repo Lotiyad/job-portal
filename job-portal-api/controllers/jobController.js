@@ -3,8 +3,9 @@ const Job = require("../models/jobModel");
 // @desc Create new job (Employer only)
 exports.createJob = async (req, res) => {
   try {
-    const { title, description, company, location, salary } = req.body;
-    
+    const { title, description, company, location, salary, jobType } = req.body;
+    const allowedTypes = ["full-time", "part-time", "internship"];
+
     if (!title || !description || !company || !location) {
       return res.status(400).json({ message: "All required fields must be provided" });
     }
@@ -15,6 +16,7 @@ exports.createJob = async (req, res) => {
       company,
       location,
       salary,
+      jobType: allowedTypes.includes(jobType) ? jobType : "full-time",
       createdBy: req.user._id,
       employer: req.user.id,
     });

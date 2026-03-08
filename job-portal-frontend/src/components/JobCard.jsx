@@ -12,13 +12,15 @@ export default function JobCard({ job }) {
       <div className="p-6 flex-grow">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-xl font-bold text-gray-900 group-hover:text-[#234C6A] transition-colors">
               {job.title}
             </h3>
             <p className="text-sm font-medium text-gray-500 mt-1">{job.company}</p>
           </div>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-            Full-time
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#234C6A]/10 text-[#234C6A] border border-[#234C6A]/30">
+            {(job.jobType || "full-time")
+              .replace("-", " ")
+              .replace(/^\w/, (c) => c.toUpperCase())}
           </span>
         </div>
 
@@ -50,7 +52,8 @@ export default function JobCard({ job }) {
       <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
         <button
           onClick={handleApply}
-          className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
+          style={{ backgroundColor: "#234C6A" }}
         >
           Apply Now
           <svg className="ml-2 -mr-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

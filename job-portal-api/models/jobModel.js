@@ -6,6 +6,11 @@ const jobSchema = new mongoose.Schema(
     description: { type: String, required: true },
     company: { type: String, required: true },
     location: { type: String, required: true },
+    jobType: {
+      type: String,
+      enum: ["full-time", "part-time", "internship"],
+      default: "full-time",
+    },
     salary: { type: String }, // for text and numbers
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     applications: [{ type: mongoose.Schema.Types.ObjectId, ref: "Application" }],

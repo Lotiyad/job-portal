@@ -14,10 +14,13 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Dashboard", path: "/dashboard" },
-  ];
+  // Only show Dashboard link when the user is logged in
+  const navLinks = user
+    ? [
+        { name: "Home", path: "/" },
+        { name: "Dashboard", path: "/dashboard" },
+      ]
+    : [{ name: "Home", path: "/" }];
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -25,8 +28,12 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <span className="text-3xl mr-2">💼</span>
-              <span className="font-bold text-xl text-gray-900 tracking-tight">JobPortal</span>
+              <span className="mr-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+                JP
+              </span>
+              <span className="font-bold text-xl text-gray-900 tracking-tight">
+                JobPortal
+              </span>
             </Link>
           </div>
           
@@ -50,7 +57,6 @@ const Navbar = () => {
 
             {user ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm font-medium text-gray-700">Hi, {user.name}</span>
                 <button
                   onClick={handleLogout}
                   className="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-500 hover:bg-red-600 transition-colors shadow-sm"
@@ -66,7 +72,6 @@ const Navbar = () => {
                 >
                   Login
                 </Link>
-                {/* Removed Register button from here as requested, user can register from Login page */}
               </div>
             )}
           </div>
@@ -117,35 +122,25 @@ const Navbar = () => {
             ))}
             
             {user ? (
-              <>
-                 <div className="block px-3 py-2 text-base font-medium text-gray-500">
-                    Hi, {user.name}
-                 </div>
-                 <button
-                    onClick={() => {
-                      handleLogout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
-                  >
-                    Logout
-                  </button>
-              </>
+              <div className="mt-4 space-y-2 px-3">
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-left block px-4 py-2 rounded-md text-base font-medium text-red-600 hover:bg-red-50"
+                >
+                  Logout
+                </button>
+              </div>
             ) : (
               <div className="mt-4 space-y-2 px-3">
-                 <Link
+                <Link
                   to="/login"
-                   onClick={() => setIsMenuOpen(false)}
+                  onClick={() => setIsMenuOpen(false)}
                   className="block w-full text-center px-4 py-2 border border-gray-300 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/register"
-                   onClick={() => setIsMenuOpen(false)}
-                  className="block w-full text-center px-4 py-2 border border-transparent rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
-                >
-                  Register
                 </Link>
               </div>
             )}

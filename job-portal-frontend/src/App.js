@@ -29,8 +29,10 @@ function Layout() {
           
           <Route path="/apply/:jobId" element={<ApplyJob />} />
           
-          {/* General Dashboard Route - Redirects based on role */}
-          <Route path="/dashboard" element={<DashboardRouter />} />
+          {/* General Dashboard Route - Redirects based on role (protected) */}
+          <Route element={<ProtectedRoute allowedRoles={["jobseeker", "employer", "admin"]} />}>
+            <Route path="/dashboard" element={<DashboardRouter />} />
+          </Route>
 
           {/* Protected Routes for Specific Dashboards */}
           <Route element={<ProtectedRoute allowedRoles={["jobseeker"]} />}>

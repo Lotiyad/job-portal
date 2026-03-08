@@ -55,9 +55,36 @@ const Home = () => {
             </main>
           </div>
         </div>
-        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gray-50 flex items-center justify-center">
-            {/* Placeholder for Hero Image */}
-            <div className="text-9xl select-none animate-bounce">🚀</div>
+        <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-gradient-to-br from-blue-50 via-slate-50 to-slate-100 flex items-center justify-center">
+          <div className="max-w-md w-full mx-8 rounded-3xl bg-white/80 backdrop-blur border border-slate-100 shadow-xl p-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+              Built for jobseekers and employers
+            </h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Track applications, manage postings, and keep everything in one
+              clean, professional workspace.
+            </p>
+            <ul className="space-y-2 text-sm text-gray-600">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">
+                  1
+                </span>
+                <span>Discover curated roles that match your skills.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">
+                  2
+                </span>
+                <span>Apply with a modern, streamlined experience.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-5 w-5 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center">
+                  3
+                </span>
+                <span>Stay organized with clear dashboards for every role.</span>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -76,41 +103,47 @@ const Home = () => {
 
           <div className="mt-10">
             <dl className="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-               <div className="relative">
-                  <dt>
-                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
-                      🔎
-                    </div>
-                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Easy Search</p>
-                  </dt>
-                  <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Filter jobs by location, industry, and salary to find your perfect match.
-                  </dd>
-               </div>
+              <div className="relative">
+                <dt>
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white text-lg font-semibold">
+                    ES
+                  </div>
+                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
+                    Easy search
+                  </p>
+                </dt>
+                <dd className="mt-2 ml-16 text-base text-gray-500">
+                  Filter jobs by location, industry, and salary to find your perfect match.
+                </dd>
+              </div>
 
-               <div className="relative">
-                  <dt>
-                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
-                      📝
-                    </div>
-                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Quick Apply</p>
-                  </dt>
-                  <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Apply to multiple jobs with a single profile.
-                  </dd>
-               </div>
+              <div className="relative">
+                <dt>
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white text-lg font-semibold">
+                    QA
+                  </div>
+                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
+                    Quick apply
+                  </p>
+                </dt>
+                <dd className="mt-2 ml-16 text-base text-gray-500">
+                  Apply to multiple jobs quickly with your saved profile.
+                </dd>
+              </div>
 
-               <div className="relative">
-                  <dt>
-                    <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-500 text-white text-2xl">
-                      🏢
-                    </div>
-                    <p className="ml-16 text-lg leading-6 font-medium text-gray-900">Top Employers</p>
-                  </dt>
-                  <dd className="mt-2 ml-16 text-base text-gray-500">
-                    Connect with leading companies looking for talent like you.
-                  </dd>
-               </div>
+              <div className="relative">
+                <dt>
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-blue-600 text-white text-lg font-semibold">
+                    TE
+                  </div>
+                  <p className="ml-16 text-lg leading-6 font-medium text-gray-900">
+                    Top employers
+                  </p>
+                </dt>
+                <dd className="mt-2 ml-16 text-base text-gray-500">
+                  Connect with leading companies looking for talent like you.
+                </dd>
+              </div>
             </dl>
           </div>
         </div>

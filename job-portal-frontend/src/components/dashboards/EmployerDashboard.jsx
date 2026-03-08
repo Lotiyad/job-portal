@@ -7,6 +7,7 @@ export default function EmployerDashboard() {
   const [company, setCompany] = useState("");
   const [location, setLocation] = useState("");
   const [salary, setSalary] = useState("");
+  const [jobType, setJobType] = useState("full-time");
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -55,16 +56,20 @@ export default function EmployerDashboard() {
     e.preventDefault();
     setError("");
     try {
-      await axios.post(
-        `${API}/api/jobs/create`,
-        { title, description, company, location, salary },
-        authHeaders
-      );
+      await axios.post(`${API}/api/jobs/create`, {
+        title,
+        description,
+        company,
+        location,
+        salary,
+        jobType,
+      }, authHeaders);
       setTitle("");
       setDescription("");
       setCompany("");
       setLocation("");
       setSalary("");
+      setJobType("full-time");
       fetchJobs();
     } catch (err) {
       console.error("Error creating job:", err.response?.data || err.message);
@@ -79,15 +84,23 @@ export default function EmployerDashboard() {
     const newCompany = prompt("Enter new company:", job.company);
     const newLocation = prompt("Enter new location:", job.location);
     const newSalary = prompt("Enter new salary:", job.salary || "");
+    const newJobType = prompt(
+      "Enter job type (full-time, part-time, internship):",
+      job.jobType || "full-time"
+    );
 
-    if (!newTitle || !newDescription || !newCompany || !newLocation) return;
+    if (!newTitle || !newDescription || !newCompany || !newLocation || !newJobType)
+      return;
 
     try {
-      await axios.put(
-        `${API}/api/jobs/${job._id}`,
-        { title: newTitle, description: newDescription, company: newCompany, location: newLocation, salary: newSalary },
-        authHeaders
-      );
+      await axios.put(`${API}/api/jobs/${job._id}`, {
+        title: newTitle,
+        description: newDescription,
+        company: newCompany,
+        location: newLocation,
+        salary: newSalary,
+        jobType: newJobType,
+      }, authHeaders);
       fetchJobs();
     } catch (err) {
       console.error("Error updating job:", err.response?.data || err.message);
@@ -143,9 +156,11 @@ export default function EmployerDashboard() {
         </div>
       )}
 
-      <div className="bg-white shadow rounded-lg mb-8">
+      <div className="bg-white shadow rounded-lg mb-8 border border-[#234C6A]/20">
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Post a New Job</h3>
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Post a new job
+          </h3>
           <form onSubmit={createJob} className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
             <div className="sm:col-span-3">
               <label htmlFor="title" className="block text-sm font-medium text-gray-700">Job Title</label>
@@ -162,28 +177,80 @@ export default function EmployerDashboard() {
             </div>
 
             <div className="sm:col-span-6">
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700">Job Description</label>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                Job description
+              </label>
               <div className="mt-1">
-                <textarea id="description" name="description" rows="3" value={description} onChange={(e) => setDescription(e.target.value)} required className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border"></textarea>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  required
+                  className="shadow-sm focus:ring-[#234C6A] focus:border-[#234C6A] block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                ></textarea>
               </div>
             </div>
 
             <div className="sm:col-span-3">
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">Location</label>
+              <label htmlFor="jobType" className="block text-sm font-medium text-gray-700">
+                Job type
+              </label>
               <div className="mt-1">
-                <input type="text" name="location" id="location" value={location} onChange={(e) => setLocation(e.target.value)} required className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border" />
+                <select
+                  id="jobType"
+                  name="jobType"
+                  value={jobType}
+                  onChange={(e) => setJobType(e.target.value)}
+                  className="shadow-sm focus:ring-[#234C6A] focus:border-[#234C6A] block w-full sm:text-sm border-gray-300 rounded-md p-2 border bg-white"
+                >
+                  <option value="full-time">Full-time</option>
+                  <option value="part-time">Part-time</option>
+                  <option value="internship">Internship</option>
+                </select>
               </div>
             </div>
 
             <div className="sm:col-span-3">
-              <label htmlFor="salary" className="block text-sm font-medium text-gray-700">Salary</label>
+              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+                Location
+              </label>
               <div className="mt-1">
-                <input type="text" name="salary" id="salary" value={salary} onChange={(e) => setSalary(e.target.value)} className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md p-2 border" />
+                <input
+                  type="text"
+                  name="location"
+                  id="location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  required
+                  className="shadow-sm focus:ring-[#234C6A] focus:border-[#234C6A] block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                />
+              </div>
+            </div>
+
+            <div className="sm:col-span-3">
+              <label htmlFor="salary" className="block text-sm font-medium text-gray-700">
+                Salary
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="salary"
+                  id="salary"
+                  value={salary}
+                  onChange={(e) => setSalary(e.target.value)}
+                  className="shadow-sm focus:ring-[#234C6A] focus:border-[#234C6A] block w-full sm:text-sm border-gray-300 rounded-md p-2 border"
+                />
               </div>
             </div>
 
             <div className="sm:col-span-6 flex justify-end">
-              <button type="submit" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+              <button
+                type="submit"
+                className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:opacity-95"
+                style={{ backgroundColor: "#234C6A" }}
+              >
                 Create Job
               </button>
             </div>
