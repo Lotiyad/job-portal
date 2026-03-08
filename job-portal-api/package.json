@@ -21,7 +21,10 @@
     "mongoose": "^8.19.2",
     "multer": "^2.0.2"
   },
+  
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "node": "20.x"
+
   }
 }
