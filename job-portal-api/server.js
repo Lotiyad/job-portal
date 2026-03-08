@@ -19,7 +19,7 @@ app.use(express.json());
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Welcome to Job Portal API 🚀");
+  res.send("Welcome to Job Portal API");
 });
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
