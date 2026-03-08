@@ -45,7 +45,7 @@ export default function EmployerDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, API]);
 
   useEffect(() => {
     fetchJobs();
