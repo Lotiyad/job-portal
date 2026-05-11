@@ -2,13 +2,22 @@ const Application = require("../models/applicationModel");
 const Job = require("../models/jobModel");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
+
+// ------------------------
+// Ensure uploads directory exists
+// ------------------------
+const uploadsDir = path.join(__dirname, "..", "uploads", "resumes");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // ------------------------
 // Multer setup for resume
 // ------------------------
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/resumes/");
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -16,7 +25,23 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /pdf|doc|docx/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error("Only PDF, DOC, and DOCX files are allowed"));
+    }
+  }
+});
 
 // Middleware to handle single resume file
 exports.uploadResume = upload.single("resume");
@@ -28,6 +53,20 @@ exports.applyJob = async (req, res) => {
   try {
     const { jobId, coverLetter } = req.body;
     const resumeFile = req.file; // resume uploaded via multer
+
+    console.log("Application submission data:", { jobId, coverLetter: coverLetter?.substring(0, 100), hasResume: !!resumeFile });
+
+    if (!jobId) {
+      return res.status(400).json({ message: "Job ID is required" });
+    }
+
+    if (!coverLetter) {
+      return res.status(400).json({ message: "Cover letter is required" });
+    }
+
+    if (!resumeFile) {
+      return res.status(400).json({ message: "Resume file is required" });
+    }
 
     const job = await Job.findById(jobId);
     if (!job) return res.status(404).json({ message: "Job not found" });
@@ -44,15 +83,35 @@ exports.applyJob = async (req, res) => {
       job: jobId,
       applicant: req.user._id,
       coverLetter,
-      resume: resumeFile ? resumeFile.path : null, // save resume path
+      resume: resumeFile.path, // save resume path
     });
+    
     await Job.findByIdAndUpdate(jobId, { $push: { applications: application._id } });
+    
+    console.log("Application created successfully:", application._id);
+    
     res
       .status(201)
       .json({ message: "Application submitted successfully", application });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Application submission error:", err);
+    
+    // Handle specific multer errors
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ message: "File size too large. Maximum size is 5MB" });
+    }
+    
+    if (err.message.includes('Only PDF, DOC, and DOCX files are allowed')) {
+      return res.status(400).json({ message: err.message });
+    }
+    
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(e => e.message);
+      return res.status(400).json({ message: "Validation error", errors });
+    }
+    
+    res.status(500).json({ message: "Server error during application submission" });
   }
 };
 // ------------------------

@@ -29,8 +29,16 @@ exports.protect = async (req, res, next) => {
 // Role-based access - restrict routes to certain roles
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
+    console.log("User role:", req.user?.role, "Required roles:", roles);
+    if (!req.user) {
+      return res.status(401).json({ message: "User not found in request" });
+    }
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ message: "Access denied: insufficient permissions" });
+      return res.status(403).json({ 
+        message: "Access denied: insufficient permissions",
+        userRole: req.user.role,
+        requiredRoles: roles
+      });
     }
     next();
   };

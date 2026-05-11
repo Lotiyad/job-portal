@@ -11,7 +11,7 @@ connectDB();
 
 const app = express();
 app.use(cors({
-  origin: "http://localhost:3000", // your React app
+  origin: "*", // Allow all origins for deployed backend
   credentials: true
 }));
 // Middleware
