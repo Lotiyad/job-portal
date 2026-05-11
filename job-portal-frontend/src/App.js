@@ -27,7 +27,9 @@ function Layout() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           
-          <Route path="/apply/:jobId" element={<ApplyJob />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/apply/:jobId" element={<ApplyJob />} />
+          </Route>
           
           {/* General Dashboard Route - Redirects based on role (protected) */}
           <Route element={<ProtectedRoute allowedRoles={["jobseeker", "employer", "admin"]} />}>

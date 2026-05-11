@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test</title>
+</head>
+<body>
+    <h1>Testing API Connectivity</h1>
+    <div id="result"></div>
+    
+    <script>
+        fetch('https://job-portal-vwac.onrender.com/api/jobs/public')
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('result').innerHTML = 
+                    '<h2>✅ API Working!</h2><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 
+                    '<h2>❌ API Error</h2><p>' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

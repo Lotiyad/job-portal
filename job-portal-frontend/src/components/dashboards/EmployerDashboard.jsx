@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import API from "../../services/api";
 
 export default function EmployerDashboard() {
   const [title, setTitle] = useState("");
@@ -15,22 +15,21 @@ export default function EmployerDashboard() {
   // ✅ Get token from localStorage
   const token = localStorage.getItem("token");
 
-  const API = "http://localhost:5000";
-  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
-
   // Fetch jobs, then fetch applicants for each job so applicants always show
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(`${API}/api/jobs`, authHeaders);
+      const res = await API.get("/jobs", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const jobsList = res.data || [];
       const jobsWithApplicants = await Promise.all(
         jobsList.map(async (job) => {
           try {
-            const appRes = await axios.get(
-              `${API}/api/applications/job/${job._id}`,
-              authHeaders
+            const appRes = await API.get(
+              `/applications/job/${job._id}`,
+              { headers: { Authorization: `Bearer ${token}` } }
             );
             return { ...job, applications: appRes.data?.applications ?? [] };
           } catch {
@@ -56,14 +55,14 @@ export default function EmployerDashboard() {
     e.preventDefault();
     setError("");
     try {
-      await axios.post(`${API}/api/jobs/create`, {
+      await API.post("/jobs/create", {
         title,
         description,
         company,
         location,
         salary,
         jobType,
-      }, authHeaders);
+      }, { headers: { Authorization: `Bearer ${token}` } });
       setTitle("");
       setDescription("");
       setCompany("");
@@ -93,14 +92,14 @@ export default function EmployerDashboard() {
       return;
 
     try {
-      await axios.put(`${API}/api/jobs/${job._id}`, {
+      await API.put(`/jobs/${job._id}`, {
         title: newTitle,
         description: newDescription,
         company: newCompany,
         location: newLocation,
         salary: newSalary,
         jobType: newJobType,
-      }, authHeaders);
+      }, { headers: { Authorization: `Bearer ${token}` } });
       fetchJobs();
     } catch (err) {
       console.error("Error updating job:", err.response?.data || err.message);
@@ -112,7 +111,7 @@ export default function EmployerDashboard() {
   const deleteJob = async (jobId) => {
     if (!window.confirm("Are you sure you want to delete this job?")) return;
     try {
-      await axios.delete(`${API}/api/jobs/${jobId}`, authHeaders);
+      await API.delete(`/jobs/${jobId}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchJobs();
     } catch (err) {
       console.error("Error deleting job:", err.response?.data || err.message);
@@ -123,10 +122,10 @@ export default function EmployerDashboard() {
   // Update application status
   const updateApplicationStatus = async (applicationId, newStatus) => {
     try {
-      await axios.put(
-        `${API}/api/applications/${applicationId}/status`,
+      await API.put(
+        `/applications/${applicationId}/status`,
         { status: newStatus },
-        authHeaders
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchJobs();
     } catch (err) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import API from "../../services/api";
 
 export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
@@ -14,10 +14,10 @@ export default function AdminDashboard() {
     const fetchData = async () => {
       try {
         const [userRes, jobRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/admin/users", {
+          API.get("/admin/users", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:5000/api/admin/jobs", {
+          API.get("/admin/jobs", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
   const handleDeleteUser = async (id) => {
     if (!window.confirm("Are you sure you want to delete this user?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/admin/users/${id}`, {
+      await API.delete(`/admin/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(users.filter((u) => u._id !== id));
@@ -65,10 +65,9 @@ export default function AdminDashboard() {
   // View job applicants
   const handleViewApplicants = async (jobId) => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/admin/jobs/${jobId}/applicants`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await API.get(`/admin/jobs/${jobId}/applicants`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       setSelectedJob({ id: jobId, applicants: res.data.applications });
 

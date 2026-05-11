@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api", // your Express backend URL
+  baseURL: "https://job-portal-vwac.onrender.com/api", // deployed backend URL
 });
 
 // Attach token automatically if logged in

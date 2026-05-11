@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import JobCard from "../JobCard";
 import { useAuth } from "../../context/AuthContext";
+import API from "../../services/api";
 
 export default function JobSeekerDashboard() {
   const { user } = useAuth();
@@ -13,7 +13,7 @@ export default function JobSeekerDashboard() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/jobs/public");
+        const res = await API.get("/jobs/public");
         setJobs(res.data);
       } catch (err) {
         console.error(err);
@@ -31,7 +31,7 @@ export default function JobSeekerDashboard() {
         const token = localStorage.getItem("token");
         if (!token) return;
         
-        const res = await axios.get("http://localhost:5000/api/applications/my-applications", {
+        const res = await API.get("/applications/my-applications", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setApplications(res.data?.applications ?? []);
@@ -53,7 +53,7 @@ export default function JobSeekerDashboard() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-3xl font-extrabold text-gray-900">
-                Welcome back, <span className="text-blue-600">{user?.name || "Job Seeker"}</span>
+                Welcome, <span className="text-blue-600">{user?.name || "Job Seeker"}</span>
               </h2>
               <p className="mt-2 text-lg text-gray-500">
                 Find your next career move or check your application status.

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
+import API from "../services/api";
 
 export default function ApplyJob() {
   const { jobId } = useParams();
@@ -23,7 +23,7 @@ export default function ApplyJob() {
         // If not, we might need to rely on passed state or fetch all and filter.
         // For now, let's try to fetch all public jobs and find the one.
         // This is safer if we don't know the exact backend route for single job.
-        const res = await axios.get("http://localhost:5000/api/jobs/public");
+        const res = await API.get("/jobs/public");
         const foundJob = res.data.find(j => j._id === jobId);
         if (foundJob) {
           setJob(foundJob);
@@ -66,9 +66,8 @@ export default function ApplyJob() {
         return;
       }
 
-      await axios.post("http://localhost:5000/api/applications/apply", formData, {
+      await API.post("/applications/apply", formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -79,8 +78,11 @@ export default function ApplyJob() {
       // Optional: Redirect after success
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Application failed. Please try again.");
+      console.error("Application submission error:", err);
+      console.error("Error response:", err.response);
+      console.error("Error status:", err.response?.status);
+      console.error("Error data:", err.response?.data);
+      setError(err.response?.data?.message || err.message || "Application failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

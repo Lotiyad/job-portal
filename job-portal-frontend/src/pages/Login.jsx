@@ -1,7 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import API from "../services/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
+      const res = await API.post("/auth/login", {
         email,
         password,
       });
@@ -37,7 +37,7 @@ export default function Login() {
       const message =
         err.response?.data?.message ||
         (err.code === "ERR_NETWORK"
-          ? "Cannot reach server. Is the API running on http://localhost:5000?"
+          ? "Cannot reach server. Is the API running on https://job-portal-vwac.onrender.com?"
           : err.message || "Login failed. Check email and password.");
       setError(message);
     } finally {

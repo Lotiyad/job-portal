@@ -11,9 +11,42 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const token = localStorage.getItem("token");
+    
     if (storedUser && token) {
       try {
         const parsedUser = JSON.parse(storedUser);
+        
+        // Validate token format (basic JWT check)
+        if (!token || token.split('.').length !== 3) {
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        
+        // Check if token is expired (basic check)
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const currentTime = Date.now() / 1000;
+          
+          if (payload.exp && payload.exp < currentTime) {
+            // Token expired
+            localStorage.removeItem("user");
+            localStorage.removeItem("token");
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+        } catch (jwtError) {
+          // Invalid JWT format
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+        
         if (parsedUser && typeof parsedUser === 'object') {
           setUser(parsedUser);
         } else {
